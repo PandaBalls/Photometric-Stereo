@@ -1,3 +1,41 @@
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import java.io.FileNotFoundException; 
+import java.util.*; 
+import no.uib.cipr.matrix.*; 
+import no.uib.cipr.matrix.sparse.*; 
+import java.lang.Math.*; 
+import org.ini4j.*; 
+import java.util.Formatter; 
+
+import org.j_paine.formatter.*; 
+import org.netlib.util.*; 
+import org.netlib.blas.*; 
+import org.netlib.lapack.*; 
+import org.netlib.err.*; 
+import org.netlib.arpack.*; 
+import processing.core.*; 
+import processing.xml.*; 
+import org.ini4j.*; 
+import org.ini4j.spi.*; 
+import a.a.a.a.*; 
+import a.a.a.a.a.*; 
+import org.netlib.utils.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class PhotometricStereo extends PApplet {
+
 ///
 /// CS-583: Introduction to Computer Vision
 /// https://www.cs.drexel.edu/~kon/introcompvis/
@@ -8,16 +46,16 @@
 ///
 
 // Needed for reading files
-import java.io.FileNotFoundException;
-import java.util.*;
+
+
 // Needed for the various Matrix and Vector operations
-import no.uib.cipr.matrix.*;
-import no.uib.cipr.matrix.sparse.*;
+
+
 // Needed for functions like Max and Min
-import java.lang.Math.*;
+
 // Needed for the .ini file parsing
-import org.ini4j.*;
-import java.util.Formatter;
+
+
 
 
 
@@ -72,8 +110,8 @@ Matrix pointsToShow = new DenseMatrix(0, 0);
 ///
 /// Set up screen size, turn off re-drawing loop
 ///
-void setup() {
-  size(400, 400);
+public void setup() {
+  
   noLoop();
 
   // Read .ini file
@@ -172,14 +210,14 @@ void setup() {
 ///
 /// Draw function
 ///
-void draw() {
+public void draw() {
   background(0);
 
-  float divideBy = 1.0;
+  float divideBy = 1.0f;
   Matrix newPoints = pointsToShow.copy();
   if (imageToShow.width > width || imageToShow.height > height) {
-    divideBy = max(float(imageToShow.width)/width, float(imageToShow.height)/height);
-    newPoints.scale(1.0/divideBy);
+    divideBy = max(PApplet.parseFloat(imageToShow.width)/width, PApplet.parseFloat(imageToShow.height)/height);
+    newPoints.scale(1.0f/divideBy);
   }
 
   int originX = floor((width-imageToShow.width/divideBy)/2);
@@ -206,7 +244,7 @@ void draw() {
 /// @param image image of a chrome sphere under a point light source
 /// @param mask mask that indicates where the sphere is in the image
 ///
-DenseVector computeOneLightDirection(PImage image, PImage mask) {
+public DenseVector computeOneLightDirection(PImage image, PImage mask) {
   // Find the center and radius of the sphere from the mask
   DenseVector sphereCenter = new DenseVector(2);
   float sphereRadius = findCenterAndRadius(mask, sphereCenter);
@@ -214,7 +252,7 @@ DenseVector computeOneLightDirection(PImage image, PImage mask) {
 
   // TODO: Compute a weighted average of the brightest pixel locations.
   // (You might want to set the threshold for finding the highlight region to 0.9.)
-  DenseVector highlightCenter = new DenseVector(new double[]{0.0, 0.0});
+  DenseVector highlightCenter = new DenseVector(new double[]{0.0f, 0.0f});
 
   double xs=0;
   for (int i=0; i<image.height; i++)
@@ -225,7 +263,7 @@ DenseVector computeOneLightDirection(PImage image, PImage mask) {
 
       //double x=red(image.get(i,j));
       double x=bright(image.get(i, j));
-      if (x>0.9)
+      if (x>0.9f)
       {
         highlightCenter.add(X, i*x);
         highlightCenter.add(Y, j*x);
@@ -244,11 +282,11 @@ DenseVector computeOneLightDirection(PImage image, PImage mask) {
   DenseVector lightSource = new DenseVector(3);
   // s = 2(n.R)n - R
   //reflection Direction R=[0 0 1.0]
-  DenseVector R = new DenseVector(new double[]{0.0, 0.0, 1.0});
+  DenseVector R = new DenseVector(new double[]{0.0f, 0.0f, 1.0f});
   lightSource.set(normal);
   lightSource.scale(2*(normal.dot(R)));
   // lightSource.add(normal, -1.0*R);
-  lightSource.add(Z, -1.0);
+  lightSource.add(Z, -1.0f);
 
 
   println("LIGHTSOURCE" + lightSource);
@@ -266,7 +304,7 @@ DenseVector computeOneLightDirection(PImage image, PImage mask) {
 /// @post center is modified to contain the proper information
 /// @returns the radius of the sphere
 ///
-float findCenterAndRadius(PImage mask, DenseVector center) {
+public float findCenterAndRadius(PImage mask, DenseVector center) {
   //
   // TODO: Compute 'center' and return radius
   //
@@ -315,12 +353,12 @@ float findCenterAndRadius(PImage mask, DenseVector center) {
 
 
 
-double bright(int a)
+public double bright(int a)
 {
   double RED, GREEN, BLUE;
-  RED=red(a)/255.0;
-  GREEN=green(a)/255.0;
-  BLUE=blue(a)/255.0;
+  RED=red(a)/255.0f;
+  GREEN=green(a)/255.0f;
+  BLUE=blue(a)/255.0f;
   double result = sqrt((float)RED*(float)RED+(float)GREEN*(float)GREEN+(float)BLUE*(float)BLUE);
   return result;
 }
@@ -333,7 +371,7 @@ double bright(int a)
 /// @param radius radius of the sphere
 /// @returns a 3D vector indicating the surface normal of the sphere at the point of the highlight
 ///
-DenseVector normalOnSphere(DenseVector highlightCenter, DenseVector sphereCenter, float radius) {
+public DenseVector normalOnSphere(DenseVector highlightCenter, DenseVector sphereCenter, float radius) {
   //
   // TODO: Compute normal
   //
@@ -362,14 +400,14 @@ DenseVector normalOnSphere(DenseVector highlightCenter, DenseVector sphereCenter
 /// @pre 'lights' has 3 columns
 /// @pre 'mask' and each entry in 'images' are all the same size
 ///
-PImage computeNormals(PImage[] images, PImage mask, DenseMatrix lights) {
+public PImage computeNormals(PImage[] images, PImage mask, DenseMatrix lights) {
   PImage result = createImage(mask.width, mask.height, RGB);
   for (int y = 0; y < mask.height; y++) {
     for (int x = 0; x < mask.width; x++) {
       if (red(mask.get(x, y)) > 0) {
         DenseVector normal = computeOneNormal(images, lights, x, y);
         normal.add(new DenseVector(new double[]{1, 1, 1}));
-        normal.scale(255 * 0.5);
+        normal.scale(255 * 0.5f);
         result.set(x, y, color(Math.round(normal.get(X)), Math.round(normal.get(Y)), Math.round(normal.get(Z))));
       }
     }
@@ -388,7 +426,7 @@ PImage computeNormals(PImage[] images, PImage mask, DenseMatrix lights) {
 /// @param y vertical  component pixel where normal should be calculated
 /// @returns a 3-dimensional vector which is the surface normal at (x,y)
 ///
-DenseVector computeOneNormal(PImage[] images, DenseMatrix lights, int x, int y) {
+public DenseVector computeOneNormal(PImage[] images, DenseMatrix lights, int x, int y) {
   //
   // TODO: Compute the surface normal at pixel (x,y)
   // (Try the weighted least-squares explained in the class for handling shadows.)
@@ -451,7 +489,7 @@ DenseVector computeOneNormal(PImage[] images, DenseMatrix lights, int x, int y) 
 /// @pre 'lights' has 3 columns
 /// @pre 'mask' and each entry in 'images' are all the same size
 ///
-PImage computeAlbedos(PImage[] images, PImage mask, DenseMatrix lights) {
+public PImage computeAlbedos(PImage[] images, PImage mask, DenseMatrix lights) {
   PImage result = createImage(mask.width, mask.height, RGB);
   for (int y = 0; y < mask.height; y++) {
     for (int x = 0; x < mask.width; x++) {
@@ -459,7 +497,7 @@ PImage computeAlbedos(PImage[] images, PImage mask, DenseMatrix lights) {
         DenseVector normal = computeOneNormal(images, lights, x, y);
         DenseVector albedo = computeOneAlbedo(images, lights, x, y, normal);
         // Hack to scale
-        albedo.scale(0.75 * 255);
+        albedo.scale(0.75f * 255);
         result.set(x, y, color(Math.round(albedo.get(X)), Math.round(albedo.get(Y)), Math.round(albedo.get(Z))));
       }
     }
@@ -479,7 +517,7 @@ PImage computeAlbedos(PImage[] images, PImage mask, DenseMatrix lights) {
 /// @param normal surface nurmal at x,y
 /// @returns a 3-dimensional vector which is the surface normal at (x,y)
 ///
-DenseVector computeOneAlbedo(PImage[] images, DenseMatrix lights, int x, int y, DenseVector normal) {
+public DenseVector computeOneAlbedo(PImage[] images, DenseMatrix lights, int x, int y, DenseVector normal) {
   //
   // TODO: Compute the surface normal at pixel (x,y)
   // (Try the weighted least-squares explained in the class for handling shadows.)
@@ -501,9 +539,9 @@ DenseVector computeOneAlbedo(PImage[] images, DenseMatrix lights, int x, int y, 
     X.set(a+0, 0, Surf_j);
     X.set(a+1, 1, Surf_j);
     X.set(a+2, 2, Surf_j);
-    I.set(a+0, red(clr)/255.0);
-    I.set(a+1, green(clr)/255.0);
-    I.set(a+2, blue(clr)/255.0);
+    I.set(a+0, red(clr)/255.0f);
+    I.set(a+1, green(clr)/255.0f);
+    I.set(a+2, blue(clr)/255.0f);
   }
 
   X.solve(I, rho);
@@ -523,7 +561,7 @@ DenseVector computeOneAlbedo(PImage[] images, DenseMatrix lights, int x, int y, 
 /// @pre 'lights' has 3 columns
 /// @pre 'mask' and each entry in 'images' are all the same size
 ///
-PImage computeDepths(PImage[] images, PImage mask, DenseMatrix lights) {
+public PImage computeDepths(PImage[] images, PImage mask, DenseMatrix lights) {
   int variables = mask.width * mask.height;
   int constraints = 2 * variables;
   FlexCompColMatrix A = new FlexCompColMatrix(constraints, variables);
@@ -636,7 +674,7 @@ PImage computeDepths(PImage[] images, PImage mask, DenseMatrix lights) {
 /// @pre the images must be ordered sequentially starting with 0
 /// @see http://java.sun.com/j2se/1.5.0/docs/api/java/util/Formatter.html
 ///
-PImage[] loadImageDirectory(String directory, String pattern) {
+public PImage[] loadImageDirectory(String directory, String pattern) {
   println("Loading all images like '" + directory + SLASH + pattern + "'");
   ArrayList images = new ArrayList();
   String sanityCheck = "";
@@ -670,13 +708,13 @@ PImage[] loadImageDirectory(String directory, String pattern) {
 /// @pre file exists
 /// @returns an Nx2 matrix with the values filled in
 ///
-Matrix readPoints(String filename) {
+public Matrix readPoints(String filename) {
   String[] lines = loadStrings(filename);
   DenseMatrix matrix = new DenseMatrix(lines.length, 2);
   for (int l = 0; l < lines.length; l++) {
     String[] values = splitTokens(lines[l], ", ");
-    matrix.set(l, X, float(values[X]));
-    matrix.set(l, Y, float(values[Y]));
+    matrix.set(l, X, PApplet.parseFloat(values[X]));
+    matrix.set(l, Y, PApplet.parseFloat(values[Y]));
   }
   return matrix;
 }
@@ -687,7 +725,7 @@ Matrix readPoints(String filename) {
 ///
 /// @param i image to show
 ///
-void show(PImage i) {
+public void show(PImage i) {
   show(i, new DenseMatrix(0, 0));
 }
 
@@ -698,7 +736,7 @@ void show(PImage i) {
 /// @param i image to show
 /// @param points points to circle in red
 ///
-void show(PImage i, Matrix points) {
+public void show(PImage i, Matrix points) {
   imageToShow = i;
   pointsToShow = points;
 
@@ -713,7 +751,7 @@ void show(PImage i, Matrix points) {
 /// @param x horizontal offset (used for centering images, see show)
 /// @param y vertical offset (used for centering images, see show)
 ///
-void showPoints(Matrix points) {
+public void showPoints(Matrix points) {
   stroke(0, 0, 0);
   fill(255, 0, 0);
   for (int r = 0; r < points.numRows(); r++) {
@@ -729,14 +767,24 @@ void showPoints(Matrix points) {
 /// @pre file exists
 /// @returns an Nx3 matrix with the values filled in
 ///
-DenseMatrix readPoints3D(String filename) {
+public DenseMatrix readPoints3D(String filename) {
   String[] lines = loadStrings(filename);
   DenseMatrix matrix = new DenseMatrix(lines.length, 3);
   for (int l = 0; l < lines.length; l++) {
     String[] values = splitTokens(lines[l], "\t, ");
-    matrix.set(l, X, float(values[X]));
-    matrix.set(l, Y, float(values[Y]));
-    matrix.set(l, Z, float(values[Z]));
+    matrix.set(l, X, PApplet.parseFloat(values[X]));
+    matrix.set(l, Y, PApplet.parseFloat(values[Y]));
+    matrix.set(l, Z, PApplet.parseFloat(values[Z]));
   }
   return matrix;
+}
+  public void settings() {  size(400, 400); }
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "PhotometricStereo" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
+  }
 }
