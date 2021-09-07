@@ -60,8 +60,9 @@ static final boolean DO_NORMALS = true;
 static final boolean DO_DEPTH =   true;
 
 // Globals for the images to show
-PImage imageToShow = createImage(400, 400, RGB);;
-Matrix pointsToShow = new DenseMatrix(0,0);
+PImage imageToShow = createImage(400, 400, RGB);
+;
+Matrix pointsToShow = new DenseMatrix(0, 0);
 
 //
 // Functions
@@ -79,12 +80,12 @@ void setup() {
   Ini ini = new Ini();
   try {
     BufferedReader reader = createReader(DEFAULT_INI_FILE);
-    if(reader == null) {
+    if (reader == null) {
       throw new FileNotFoundException(DEFAULT_INI_FILE);
     }
     ini.load(reader);
 
-    if(DO_CHROME) {
+    if (DO_CHROME) {
       //
       // TODO : Estimate light direction for each chrome image using 'computeOneLightDirection'
       // Write each direction to a file (suggestion, use filename in ini file)
@@ -94,24 +95,22 @@ void setup() {
       Ini.Section section = ini.get(CHROME);
       PImage[] chromeImages = loadImageDirectory(section.get(PATH), section.get(PATH) + PATTERN);
       PImage chromeMask = loadImage(section.get(PATH) + SLASH + section.get(PATH) + MASK);
-      
+
       PrintWriter Writelights = createWriter(section.get(OUTPUT));
       //for (PImage imgs : chromeImages)
-     for(int i=0;i<chromeImages.length;i++) 
+      for (int i=0; i<chromeImages.length; i++) 
       {
-        
+
         DenseVector writing = computeOneLightDirection(chromeImages[i], chromeMask);
         Writelights.println(writing.get(X) + " " + writing.get(Y) + " " + writing.get(Z));
       }
       Writelights.close();
 
-      
-//DenseVector light = new DenseVector(2);
-      //for(int i=0; i<chromeImages.length;i++)
-      
-//      light = computeOneLightDirection(chromeImages, chromeMask);
-      
 
+      //DenseVector light = new DenseVector(2);
+      //for(int i=0; i<chromeImages.length;i++)
+
+      //      light = computeOneLightDirection(chromeImages, chromeMask);
     } else {
       println("Skipping light direction calculation section");
     }
@@ -120,54 +119,50 @@ void setup() {
     // Iterate over each subject and perform the requested actions
     //
     Iterator sectionIterator = ini.get(SUBJECTS).getAll(PATH).iterator();
-    while(sectionIterator.hasNext()) {
+    while (sectionIterator.hasNext()) {
       String path = (String)sectionIterator.next();
       println("Now working with " + path + " images");
-      
+
       DenseMatrix lights=readPoints3D("lights.txt");
       PImage[] images=loadImageDirectory(path, path+PATTERN);
       PImage mask=loadImage(path + SLASH + path + MASK);
-      
-      if(DO_NORMALS) {
+
+      if (DO_NORMALS) {
         //
         // TODO: Compute normal map image by calling 'computeNormals'. Save the result.
         //
         println("Computing normal map");
-    PImage normals = computeNormals(images, mask, lights);
-    normals.save(path + "_normal.png");
-
+        PImage normals = computeNormals(images, mask, lights);
+        normals.save(path + "_normal.png");
       } else {
         println("Skipping normal calculation section");
       }
-      if(DO_ALBEDOS) {
+      if (DO_ALBEDOS) {
         //
         // TODO: Compute albedo image by calling 'computeAlbedos'. Save the result.
         //
         println("Computing albedo map");
         PImage albedos = computeAlbedos(images, mask, lights);
         albedos.save(path + "_albedo.png");
-
-
-
       } else {
         println("Skipping albedo calculation section");
       }
-      if(DO_DEPTH) {
+      if (DO_DEPTH) {
         //
         // TODO: Compute depth image by calling 'computeDepths'. Save the result.
         //
         println("Computing depth map");
         PImage depths = computeDepths(images, mask, lights);
         depths.save(path + "_depth.png");
-
       }
 
       println("Completed " + path + " subject.");
     }
-
-  } catch(FileNotFoundException e) {
+  } 
+  catch(FileNotFoundException e) {
     println("You must have the file '" + e.getMessage() + "' present.");
-  } catch(IOException e) {
+  } 
+  catch(IOException e) {
     println("Failure reading ini file: " + e.getMessage());
     exit();
   }
@@ -182,7 +177,7 @@ void draw() {
 
   float divideBy = 1.0;
   Matrix newPoints = pointsToShow.copy();
-  if(imageToShow.width > width || imageToShow.height > height) {
+  if (imageToShow.width > width || imageToShow.height > height) {
     divideBy = max(float(imageToShow.width)/width, float(imageToShow.height)/height);
     newPoints.scale(1.0/divideBy);
   }
@@ -190,7 +185,7 @@ void draw() {
   int originX = floor((width-imageToShow.width/divideBy)/2);
   int originY = floor((height-imageToShow.height/divideBy)/2);
 
-  for(int r = 0; r < pointsToShow.numRows(); r++) {
+  for (int r = 0; r < pointsToShow.numRows(); r++) {
     newPoints.set(r, X, newPoints.get(r, X) + originX);
     newPoints.set(r, Y, newPoints.get(r, Y) + originY);
   }
@@ -222,15 +217,15 @@ DenseVector computeOneLightDirection(PImage image, PImage mask) {
   DenseVector highlightCenter = new DenseVector(new double[]{0.0, 0.0});
 
   double xs=0;
-  for(int i=0;i<image.height;i++)
+  for (int i=0; i<image.height; i++)
   {
-    for(int j=0;j<image.width;j++)
+    for (int j=0; j<image.width; j++)
     {
-//double x=brightness(image.get(i,j));
+      //double x=brightness(image.get(i,j));
 
-//double x=red(image.get(i,j));
-  double x=bright(image.get(i,j));
-      if(x>0.9)
+      //double x=red(image.get(i,j));
+      double x=bright(image.get(i, j));
+      if (x>0.9)
       {
         highlightCenter.add(X, i*x);
         highlightCenter.add(Y, j*x);
@@ -239,7 +234,7 @@ DenseVector computeOneLightDirection(PImage image, PImage mask) {
     }
   }
   highlightCenter.scale(1/xs);
-  
+
   println("HIGHLIGHTCENTER:"+ highlightCenter);
 
   // TODO: Compute the surface normal at the point
@@ -252,11 +247,11 @@ DenseVector computeOneLightDirection(PImage image, PImage mask) {
   DenseVector R = new DenseVector(new double[]{0.0, 0.0, 1.0});
   lightSource.set(normal);
   lightSource.scale(2*(normal.dot(R)));
- // lightSource.add(normal, -1.0*R);
+  // lightSource.add(normal, -1.0*R);
   lightSource.add(Z, -1.0);
-  
- 
-println("LIGHTSOURCE" + lightSource);
+
+
+  println("LIGHTSOURCE" + lightSource);
 
   return lightSource;
 }
@@ -276,31 +271,31 @@ float findCenterAndRadius(PImage mask, DenseVector center) {
   // TODO: Compute 'center' and return radius
   //
   float radius = 0;
-// center={0.0,0.0};
-  center.set(X,0);
-  center.set(Y,0);
+  // center={0.0,0.0};
+  center.set(X, 0);
+  center.set(Y, 0);
   double all=0;
-  
+
   int minRow=mask.width, minCol=mask.height, maxRow=0, maxCol=0;
- 
- 
+
+
   // minRow, maxRow, minCOl, maxCol calculations
-  for(int j=0;j<mask.height;j++)
+  for (int j=0; j<mask.height; j++)
   {
-    for(int i=0;i<mask.width;i++)
+    for (int i=0; i<mask.width; i++)
     {
-      int z=mask.get(i,j);
+      int z=mask.get(i, j);
       double s=red(z);
-  center.add(X, s*i);
-  center.add(Y, s*j);
-    all+=s;
-   if(s>0)
-   {
-     minRow=min(i,minRow);
-     minCol=min(j,minCol);
-     maxRow=max(i,maxRow);
-     maxCol=max(j,maxCol);
-   }
+      center.add(X, s*i);
+      center.add(Y, s*j);
+      all+=s;
+      if (s>0)
+      {
+        minRow=min(i, minRow);
+        minCol=min(j, minCol);
+        maxRow=max(i, maxRow);
+        maxCol=max(j, maxCol);
+      }
     }
   }
   center.scale(1/all);
@@ -308,22 +303,21 @@ float findCenterAndRadius(PImage mask, DenseVector center) {
   println("minCol:" + minCol);
   println("maxRow:" + maxRow);
   println("maxCol:" + maxCol);
-  
+
   center.set(X, (minRow+maxRow)/2);
   center.set(Y, (minCol+maxCol)/2);
   println("Center:" + center);
-  
+
   radius=(maxRow-minRow)/2;
- // println(" Radius"+radius);
+  // println(" Radius"+radius);
   return radius;
-  
 }
 
 
 
 double bright(int a)
 {
-  double RED,GREEN,BLUE;
+  double RED, GREEN, BLUE;
   RED=red(a)/255.0;
   GREEN=green(a)/255.0;
   BLUE=blue(a)/255.0;
@@ -370,11 +364,11 @@ DenseVector normalOnSphere(DenseVector highlightCenter, DenseVector sphereCenter
 ///
 PImage computeNormals(PImage[] images, PImage mask, DenseMatrix lights) {
   PImage result = createImage(mask.width, mask.height, RGB);
-  for(int y = 0; y < mask.height; y++) {
-    for(int x = 0; x < mask.width; x++) {
-      if(red(mask.get(x, y)) > 0) {
+  for (int y = 0; y < mask.height; y++) {
+    for (int x = 0; x < mask.width; x++) {
+      if (red(mask.get(x, y)) > 0) {
         DenseVector normal = computeOneNormal(images, lights, x, y);
-        normal.add(new DenseVector(new double[]{1,1,1}));
+        normal.add(new DenseVector(new double[]{1, 1, 1}));
         normal.scale(255 * 0.5);
         result.set(x, y, color(Math.round(normal.get(X)), Math.round(normal.get(Y)), Math.round(normal.get(Z))));
       }
@@ -394,55 +388,55 @@ PImage computeNormals(PImage[] images, PImage mask, DenseMatrix lights) {
 /// @param y vertical  component pixel where normal should be calculated
 /// @returns a 3-dimensional vector which is the surface normal at (x,y)
 ///
-DenseVector computeOneNormal(PImage[] images,  DenseMatrix lights, int x, int y) {
+DenseVector computeOneNormal(PImage[] images, DenseMatrix lights, int x, int y) {
   //
   // TODO: Compute the surface normal at pixel (x,y)
   // (Try the weighted least-squares explained in the class for handling shadows.)
   //
   DenseVector normal = new DenseVector(3);
   int len=images.length;
-  
+
   // We have to find the pseudoinverse: ~n=(pow((StS),-1))*St*I
   DenseVector I=new DenseVector(len);
   DenseMatrix S= lights.copy();
-  for(int i=0;i<len;i++)
+  for (int i=0; i<len; i++)
   {
     //    double intensity=brightness(images[i].get(x,y));
 
-    double intensity=bright(images[i].get(x,y));
+    double intensity=bright(images[i].get(x, y));
     I.set(i, intensity*intensity);
-    
-    for(int j=0;j<3;j++)
+
+    for (int j=0; j<3; j++)
     {
-      double var=S.get(i,j);
-      S.set(i,j, intensity*var);
+      double var=S.get(i, j);
+      S.set(i, j, intensity*var);
     }
   }
-  
+
   DenseMatrix St=new DenseMatrix(S.numColumns(), S.numRows());
-  
+
   S.transpose(St);
-  
+
   DenseMatrix StSinv=new DenseMatrix(S.numColumns(), S.numRows());
-  
+
   DenseMatrix StS=new DenseMatrix(S.numColumns(), S.numColumns());
   St.mult(S, StS);
-  
+
   try {
-  StS.solve(St, StSinv);
-  StSinv.mult(I, normal);
-  //DenseVector normalisation=sqrt(add(X,normal*normal));
+    StS.solve(St, StSinv);
+    StSinv.mult(I, normal);
+    //DenseVector normalisation=sqrt(add(X,normal*normal));
     //normal.scale(1/normalisation);
 
-  normal.scale(1/normal.norm(no.uib.cipr.matrix.Vector.Norm.TwoRobust)); //sqrt(sum(sqrs))
-  //normal.scale(1/normalisation);
-  } catch(MatrixSingularException exception) {
+    normal.scale(1/normal.norm(no.uib.cipr.matrix.Vector.Norm.TwoRobust)); //sqrt(sum(sqrs))
+    //normal.scale(1/normalisation);
+  } 
+  catch(MatrixSingularException exception) {
     normal.zero();
   }
- 
-     //println("NORMALLY :" + normal);
-   return normal;
 
+  //println("NORMALLY :" + normal);
+  return normal;
 }
 
 
@@ -459,9 +453,9 @@ DenseVector computeOneNormal(PImage[] images,  DenseMatrix lights, int x, int y)
 ///
 PImage computeAlbedos(PImage[] images, PImage mask, DenseMatrix lights) {
   PImage result = createImage(mask.width, mask.height, RGB);
-  for(int y = 0; y < mask.height; y++) {
-    for(int x = 0; x < mask.width; x++) {
-      if(red(mask.get(x, y)) > 0) {
+  for (int y = 0; y < mask.height; y++) {
+    for (int x = 0; x < mask.width; x++) {
+      if (red(mask.get(x, y)) > 0) {
         DenseVector normal = computeOneNormal(images, lights, x, y);
         DenseVector albedo = computeOneAlbedo(images, lights, x, y, normal);
         // Hack to scale
@@ -494,26 +488,26 @@ DenseVector computeOneAlbedo(PImage[] images, DenseMatrix lights, int x, int y, 
   int len=images.length;
   DenseVector SurfNorm = new DenseVector(len);
   lights.mult(normal, SurfNorm);
-  
+
   // Xr = I
- DenseMatrix X= new DenseMatrix(len*3, 3);
- DenseVector I= new DenseVector(len*3);
- 
- for(int j=0;j<len;j++)
- {
-   double Surf_j= SurfNorm.get(j);
-   int a =3*j;
-   int clr = images[j].get(x,y);
+  DenseMatrix X= new DenseMatrix(len*3, 3);
+  DenseVector I= new DenseVector(len*3);
+
+  for (int j=0; j<len; j++)
+  {
+    double Surf_j= SurfNorm.get(j);
+    int a =3*j;
+    int clr = images[j].get(x, y);
     X.set(a+0, 0, Surf_j);
     X.set(a+1, 1, Surf_j);
     X.set(a+2, 2, Surf_j);
     I.set(a+0, red(clr)/255.0);
     I.set(a+1, green(clr)/255.0);
     I.set(a+2, blue(clr)/255.0);
- }
- 
- X.solve(I,rho);
- 
+  }
+
+  X.solve(I, rho);
+
   return rho;
 }
 
@@ -534,29 +528,27 @@ PImage computeDepths(PImage[] images, PImage mask, DenseMatrix lights) {
   int constraints = 2 * variables;
   FlexCompColMatrix A = new FlexCompColMatrix(constraints, variables);
   DenseVector b = new DenseVector(constraints);
-  for(int y = 0; y < mask.height; y++) {
-    for(int x = 0; x < mask.width; x++) {
-      if(red(mask.get(x, y)) > 0) {
+  for (int y = 0; y < mask.height; y++) {
+    for (int x = 0; x < mask.width; x++) {
+      if (red(mask.get(x, y)) > 0) {
         //
         // TODO: Fill in A and b
         // We need to find V1 and V2
-       // 0 = N.V1 and 0=N.V2 
+        // 0 = N.V1 and 0=N.V2 
         DenseVector normal = computeOneNormal(images, lights, x, y);
-        
+
         double Nx = normal.get(X);
         double Ny = normal.get(Y);
         double Nz = normal.get(Z);
         int i = y * mask.width + x;
-        
+
         A.set(2*i, i, Nz);
         A.set(2*i, i+1, -Nz);
         b.set(2*i, Nx);
-        
+
         A.set(2*i+1, i, Nz);
         A.set(2*i+1, i+mask.width, -Nz);
         b.set(2*i+1, Ny);
-      
-        
       }
     }
   }
@@ -567,14 +559,14 @@ PImage computeDepths(PImage[] images, PImage mask, DenseMatrix lights) {
   println("Computing ATA");
   int [] positions = new int[]{-mask.width, -1, 0, 1, mask.width};
   CompDiagMatrix ATA = new CompDiagMatrix(variables, variables, positions);
-  for(int row = 0; row < variables; row ++) {
-    for(int index = 2; index < positions.length; index++) {
+  for (int row = 0; row < variables; row ++) {
+    for (int index = 2; index < positions.length; index++) {
       int column = row + positions[index];
-      if(column >= 0 & column < variables) {
+      if (column >= 0 & column < variables) {
         no.uib.cipr.matrix.Vector rowVector = A.getColumn(column);
         no.uib.cipr.matrix.Vector colVector = A.getColumn(row);
         double value =  rowVector.dot(colVector);
-        if(!Double.isNaN(value)) {
+        if (!Double.isNaN(value)) {
           ATA.set(row, column, value);
           ATA.set(column, row, value);
         }
@@ -588,11 +580,12 @@ PImage computeDepths(PImage[] images, PImage mask, DenseMatrix lights) {
 
   println("Solving ATA = ATb z");
   DenseVector z = new DenseVector(variables);
-  try{
+  try {
     z.set(ATb);
     CG conjugateGradient = new CG(z);
-    conjugateGradient.solve(ATA,ATb,z);
-  } catch(IterativeSolverNotConvergedException e) {
+    conjugateGradient.solve(ATA, ATb, z);
+  } 
+  catch(IterativeSolverNotConvergedException e) {
     println("Could not solve system because of " + e.getReason());
     // Also print a tip
     println("Be sure that you have no NaN values in your matrix and vector.");
@@ -607,9 +600,9 @@ PImage computeDepths(PImage[] images, PImage mask, DenseMatrix lights) {
   // Find minimum and maximum
   double minD = Double.MAX_VALUE;
   double maxD = Double.MIN_VALUE;
-  for(int y = 0; y < mask.height; y++){
-    for(int x = 0; x < mask.width; x++) {
-      if(red(mask.get(x,y)) > 0){
+  for (int y = 0; y < mask.height; y++) {
+    for (int x = 0; x < mask.width; x++) {
+      if (red(mask.get(x, y)) > 0) {
         int pixel = x + y * mask.width;
         double value = z.get(pixel);
         minD = Math.min(value, minD);
@@ -619,9 +612,9 @@ PImage computeDepths(PImage[] images, PImage mask, DenseMatrix lights) {
   }
   // Render scaled values
   PImage result = createImage(mask.width, mask.height, RGB);
-  for(int y = 0; y < mask.height; y++){
-    for(int x = 0; x < mask.width; x++) {
-      if(red(mask.get(x,y)) > 0) {
+  for (int y = 0; y < mask.height; y++) {
+    for (int x = 0; x < mask.width; x++) {
+      if (red(mask.get(x, y)) > 0) {
         int pixel = x + y * mask.width;
         double value = z.get(pixel);
         double i = (value - minD)/(maxD - minD);
@@ -647,15 +640,15 @@ PImage[] loadImageDirectory(String directory, String pattern) {
   println("Loading all images like '" + directory + SLASH + pattern + "'");
   ArrayList images = new ArrayList();
   String sanityCheck = "";
-  for(int index = 0; index < MAX_IMAGES; index++){
+  for (int index = 0; index < MAX_IMAGES; index++) {
     String filename =  String.format(pattern, index).toString();
-    if(filename == sanityCheck) {
+    if (filename == sanityCheck) {
       println("Your pattern is bad! It must contain %d or some other integer placeholder!");
       return null;
     }
     PImage image = loadImage(directory + SLASH + filename);
-    if(null == image) {
-      if(index == 0) {
+    if (null == image) {
+      if (index == 0) {
         println("No images were found, check to make sure there are images named correctly.");
       } else {
         println("Loaded " + index + " images (don't worry about the above error).");
@@ -680,10 +673,10 @@ PImage[] loadImageDirectory(String directory, String pattern) {
 Matrix readPoints(String filename) {
   String[] lines = loadStrings(filename);
   DenseMatrix matrix = new DenseMatrix(lines.length, 2);
-  for(int l = 0; l < lines.length; l++) {
+  for (int l = 0; l < lines.length; l++) {
     String[] values = splitTokens(lines[l], ", ");
-    matrix.set(l,X,float(values[X]));
-    matrix.set(l,Y,float(values[Y]));
+    matrix.set(l, X, float(values[X]));
+    matrix.set(l, Y, float(values[Y]));
   }
   return matrix;
 }
@@ -695,7 +688,7 @@ Matrix readPoints(String filename) {
 /// @param i image to show
 ///
 void show(PImage i) {
-  show(i, new DenseMatrix(0,0));
+  show(i, new DenseMatrix(0, 0));
 }
 
 
@@ -708,7 +701,7 @@ void show(PImage i) {
 void show(PImage i, Matrix points) {
   imageToShow = i;
   pointsToShow = points;
-  
+
   redraw();
 }
 
@@ -720,11 +713,11 @@ void show(PImage i, Matrix points) {
 /// @param x horizontal offset (used for centering images, see show)
 /// @param y vertical offset (used for centering images, see show)
 ///
-void showPoints(Matrix points){
-  stroke(0,0,0);
-  fill(255,0,0);
-  for(int r = 0; r < points.numRows(); r++) {
-    ellipse((float) points.get(r,X), (float)points.get(r,Y), DOT_SIZE, DOT_SIZE);
+void showPoints(Matrix points) {
+  stroke(0, 0, 0);
+  fill(255, 0, 0);
+  for (int r = 0; r < points.numRows(); r++) {
+    ellipse((float) points.get(r, X), (float)points.get(r, Y), DOT_SIZE, DOT_SIZE);
   }
 }
 
@@ -739,11 +732,11 @@ void showPoints(Matrix points){
 DenseMatrix readPoints3D(String filename) {
   String[] lines = loadStrings(filename);
   DenseMatrix matrix = new DenseMatrix(lines.length, 3);
-  for(int l = 0; l < lines.length; l++) {
+  for (int l = 0; l < lines.length; l++) {
     String[] values = splitTokens(lines[l], "\t, ");
-    matrix.set(l,X,float(values[X]));
-    matrix.set(l,Y,float(values[Y]));
-    matrix.set(l,Z,float(values[Z]));
+    matrix.set(l, X, float(values[X]));
+    matrix.set(l, Y, float(values[Y]));
+    matrix.set(l, Z, float(values[Z]));
   }
   return matrix;
 }
